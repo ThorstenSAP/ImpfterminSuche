@@ -1,7 +1,7 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
 const plz = 69123
-const code = 'NF42-RT46-PTL5'
+const code = 'V572-XFJL-65PW' //'NF42-RT46-PTL5'
 const song = 'party.mp3'
 const timerAppReady = 60000 //timer refreshing the warteraum
 const timerClicks = 5000 //timer between clicking on the page
