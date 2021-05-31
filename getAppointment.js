@@ -1,7 +1,7 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
 const plz = 69123
-const code = 'NF42-RT46-PTL5' //'V572-XFJL-65PW'
+const code = 'V572-XFJL-65PW' //'NF42-RT46-PTL5' //
 
 
 const insertCodeBtn = '/html/body/app-root/div/app-page-its-login/div/div/div[2]/app-its-login-user/div/div/app-corona-vaccination/div[2]/div/div/label[1]'
@@ -57,10 +57,12 @@ function playSound(){
             await driver.findElement(By.xpath(innnerTerminSuchenBtnXPath))
             searchPossible = true
         } catch(e){
+            console.log('couldnt find button')
             await driver.sleep(30000)
         }
         if (!searchPossible){
             while (!searchPossible) {
+                console.log('going into whiile')
                 //click on Termin Suchen until the error remove itself
                 const searchAppointmentBtnAfterError = await driver.findElement(By.xpath(searchAppointmentBtnAfterErrorPath))
                 searchAppointmentBtnAfterError.click()
