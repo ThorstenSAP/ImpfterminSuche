@@ -2,12 +2,18 @@ const {Builder, By, Key, until} = require('selenium-webdriver');
 
 
 const plz = 69123
+const song = 'party.mp3'
+const timerAppReady = 60000 //timer refreshing the warteraum
+const timerClicks = 20000 //timer between clicking on the page
+const timerResult = 300000 //time on result screen
+
+
 const getCodeBtn = '/html/body/app-root/div/app-page-its-login/div/div/div[2]/app-its-login-user/div/div/app-corona-vaccination/div[3]/div/div/div/div[2]/div/div/div'
 
 
 function playSound(){
     const player = require('play-sound')(opts = {})
-    player.play('party.mp3')
+    player.play(song)
 }
 
 (async function example() {
@@ -23,27 +29,24 @@ function playSound(){
                     bAppReady = true 
                 } else {
                     bAppReady = false
-                    await driver.sleep(60000)
+                    await driver.sleep(timerAppReady)
                     appTitle = await driver.getTitle()
                 }
             }while(!bAppReady)
 
-        //get 'button' Nein - Anspruch prüfen
-        // const cheddar = await driver.wait(until.elementLocated(By.xpath(getCodeBtn)), 5000)
+        //get 'button' Nein - Anspruch prüfen and click it
+        await driver.sleep(timerClicks)
         const cheddar = driver.findElement(By.xpath('/html/body/app-root/div/app-page-its-login/div/div/div[2]/app-its-login-user/div/div/app-corona-vaccination/div[2]/div/div/label[2]'));
-
-        //click on the second label
         cheddar.click()
 
         //wait a few seconds
-        await driver.sleep(15000)
+        await driver.sleep(timerClicks)
 
         let bKeyPossible
         
         //get result element
-        // const result = await driver.wait(until.elementLocated(By.xpath(getCodeBtn)), 5000)
         let result = driver.findElement(By.xpath('/html/body/app-root/div/app-page-its-login/div/div/div[2]/app-its-login-user/div/div/app-corona-vaccination/div[3]/div/div/div/div[2]/div/div/div'));
-        let resultText = await result.getText()//.getAttribute('textContent')
+        let resultText = await result.getText()
         if (resultText.includes('Es wurden keine freien Termine in Ihrer Region gefunden. Bitte probieren Sie es später erneut.')) {
             bKeyPossible = false
         } else { 
@@ -52,11 +55,12 @@ function playSound(){
 
         while(!bKeyPossible){
             cheddar.click()
-            await driver.sleep(15000)
+            await driver.sleep(timerClicks)
             try{
                 result = await driver.findElement(By.xpath('/html/body/app-root/div/app-page-its-login/div/div/div[2]/app-its-login-user/div/div/app-corona-vaccination/div[3]/div/div/div/div[2]/div/div/div'));
             } catch(e){
                 playSound()
+                await driver.sleep(timerResult) // wait at screen for 5 min
             }
             
             let resultText = await result.getText()
