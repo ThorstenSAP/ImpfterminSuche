@@ -1,5 +1,5 @@
 # General
-Two scripts which are using the method for Webtesting. The script automatically clicks on the webpage and then checks the information which are displayed. If the information is nothing like 'Es wurden keine freien Termin gefunden' it is assumed that a code or an appointment is available. As a result a sound is played.
+Two scripts which are using the method for Webtesting. The script automatically clicks on the webpage and then checks the information which are displayed. If the information is unlike 'Es wurden keine freien Termin gefunden' it is assumed that a code or an appointment is available. As a result a sound is played.
 
 ## Prerequisites
 - Not Mac users have to ensure that selenium webdriver is able to start chrome. Hence, download the webdriver and include it in the path environment
