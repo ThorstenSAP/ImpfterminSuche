@@ -1,5 +1,5 @@
 # Important
-I've developed this tool in my leisure time beside a full time job. It is free for usage. Since, it saved me a lot of time to search for an injection appointment I'm glad if it helps you too. If you find it helpful and it saved you time as well please give me a small donation (https://paypal.me/TMHDMTB?locale.x=de_DE). <br>
+I've developed this tool in my leisure time beside a full time job. It is free for usage. Since, it saved me a lot of time to search for an injection appointment I'm glad if it helps you too. If you find it helpful and it saved you time as well please give me a donation (https://paypal.me/TMHDMTB?locale.x=de_DE). <br>
 I'm open for any suggestions and further improvements. So let me know if you have one.
 
 # General

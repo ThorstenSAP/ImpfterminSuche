@@ -1,8 +1,9 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
+//Copyright (c) 2021, Thorsten Müller
 /* ====== personal varibles ========*/
-const plz = 70238
-const code = 'ABCD-1234-EF56' 
+const plz = 69123
+const code = 'V572-XFJL-65PW' //'NF42-RT46-PTL5'
 const song = 'party.mp3'
 
 /* ====== varibles to adjust if the webpage is to slow ========*/
