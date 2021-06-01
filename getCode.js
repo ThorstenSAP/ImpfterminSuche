@@ -19,60 +19,53 @@ function playSound(){
     const player = require('play-sound')(opts = {})
     player.play(song)
 }
-async function validateResult(driver, element){
-    if (!element){
-        element = driver.findElement(By.xpath(resultBoxXPath))
-    } 
+async function validateResult(driver){
+    console.log('in validateResult')
+    let element = driver.findElement(By.xpath(resultBoxXPath))
     let resultText = await element.getText()
+    console.log(resultText)
     if (resultText.includes('Es wurden keine freien Termine in Ihrer Region gefunden. Bitte probieren Sie es später erneut.')) {
         return false
     } else { 
         return true
     } 
 }
+async function handleWaitingRoom(driver){
+    let bAppReady 
+    do {
+        await driver.sleep(timerAppReady)
+        appTitle = await driver.getTitle() //"Impfterminservice - Onlinebuchung" => Warteschlange
+        if (appTitle !== 'Impfterminservice - Onlinebuchung') { //116117.app => App ready
+            bAppReady = true 
+        } else {
+            bAppReady = false
+        }
+    } while (!bAppReady)
+    return
+}
 
 (async function main() {
-    let driver = await new Builder().forBrowser('chrome').build();
+    let driver = await new Builder().forBrowser('chrome').build()
+    let bKeyPossible
     try {
             // Navigate to Url
             await driver.get(`https://001-iz.impfterminservice.de/impftermine/service?plz=${plz}`);
         
-            let bAppReady 
-            let appTitle = await driver.getTitle() //"Impfterminservice - Onlinebuchung" => Warteschlange
+            await handleWaitingRoom(driver)
+            await driver.sleep(timerClicks) //wait for the app to load (eventually needed)
+
+
+            //get 'button' Nein - Anspruch prüfen and click it
+            const cheddar = driver.findElement(By.xpath(getCodeBtnXPath)) 
+    
             do {
-                if (appTitle !== 'Impfterminservice - Onlinebuchung') { //116117.app => App ready
-                    bAppReady = true 
-                } else {
-                    bAppReady = false
-                    await driver.sleep(timerAppReady)
-                    appTitle = await driver.getTitle()
-                }
-            }while(!bAppReady)
+                cheddar.click()
+                await driver.sleep(timerClicks)
+                bKeyPossible = await validateResult(driver)
+            } while(!bKeyPossible)
 
-        //get 'button' Nein - Anspruch prüfen and click it
-        await driver.sleep(timerClicks)
-        const cheddar = driver.findElement(By.xpath(getCodeBtnXPath));
-        cheddar.click()
-
-        //wait a few seconds
-        await driver.sleep(timerClicks)
-
-        let bKeyPossible = await validateResult(driver)
- 
-
-        while(!bKeyPossible){
-            cheddar.click()
-            await driver.sleep(timerClicks)
-            try{
-                await driver.findElement(By.xpath(resultBoxXPath));
-            } catch(e){
-                playSound()
-                await driver.sleep(timerResult) // wait at screen for 5 min
-            }
-            
-            bKeyPossible = await validateResult(driver) 
-        }
-        playSound()
+            playSound()
+            await driver.sleep(timerResult)
     }
     catch(e){
     }
