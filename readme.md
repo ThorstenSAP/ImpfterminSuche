@@ -1,5 +1,6 @@
 # Important
-I've developed this tool in my leisure time beside a full time job. It is free for usage. Since, it saved me a lot of time to search for an injection appointment I'm glad if it helps you too. If you find it helpful and it saved you time as well please give me a small donation (https://paypal.me/TMHDMTB?locale.x=de_DE).
+I've developed this tool in my leisure time beside a full time job. It is free for usage. Since, it saved me a lot of time to search for an injection appointment I'm glad if it helps you too. If you find it helpful and it saved you time as well please give me a small donation (https://paypal.me/TMHDMTB?locale.x=de_DE). <br>
+I'm open for any suggestions and further improvements. So let me know if you have one.
 
 # General
 Two scripts which are using the method for Webtesting. The script automatically clicks on the webpage and then checks the information which are displayed. If the information is unlike 'Es wurden keine freien Termin gefunden' it is assumed that a code or an appointment is available. As a result a sound is played.
