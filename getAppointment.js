@@ -1,11 +1,14 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
-const plz = 69123
-const code = 'V572-XFJL-65PW' //'NF42-RT46-PTL5'
+/* ====== personal varibles ========*/
+const plz = 70238
+const code = 'ABCD-1234-EF56' 
 const song = 'party.mp3'
-const timerAppReady = 60000 //timer refreshing the warteraum
+
+/* ====== varibles to adjust if the webpage is to slow ========*/
+const timerAppReady = 60000 //timer refreshing the virtual waiting room
 const timerClicks = 5000 //timer between clicking on the page
-const timerWaitForApp = 30000 
+const timerWaitForApp = 30000 // time scripts waits before checking the result
 const timer10MinApp = 660000 //11min -> 660000ms, the timer is a bit off. Hence, wait more than 10 minutes
 
 

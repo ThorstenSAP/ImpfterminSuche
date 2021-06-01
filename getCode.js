@@ -1,8 +1,10 @@
 const {Builder, By, Key, until} = require('selenium-webdriver');
 
-
-const plz = 69123
+/* ====== personal varibles ========*/
+const plz = 70238
 const song = 'party.mp3'
+
+/* ====== varibles to adjust if the webpage is to slow ========*/
 const timerAppReady = 60000 //timer refreshing the warteraum
 const timerClicks = 20000 //timer between clicking on the page
 const timerResult = 300000 //time on result screen
