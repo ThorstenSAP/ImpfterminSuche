@@ -3,7 +3,7 @@ const {Builder, By, Key, until} = require('selenium-webdriver');
 //Copyright (c) 2021, Thorsten Müller
 /* ====== personal varibles ========*/
 const plz = 69123
-const code = 'V572-XFJL-65PW' //'NF42-RT46-PTL5'
+const code = 'ABBC-1234-DEFG' 
 const song = 'party.mp3'
 
 /* ====== varibles to adjust if the webpage is to slow ========*/
@@ -19,29 +19,112 @@ const searchAppointmentBtn = '/html/body/app-root/div/app-page-its-login/div/div
 const searchAppointmentBtnAfterErrorPath = '/html/body/app-root/div/app-page-its-login/div/div/div[2]/app-its-login-user/div/div/app-corona-vaccination/div[3]/div/div/div/div[1]/app-corona-vaccination-yes/form/div[3]/button'
 const innnerTerminSuchenBtnXPath = '/html/body/app-root/div/app-page-its-search/div/div/div[2]/div/div/div[5]/div/div[1]/div[2]/div[2]/button'
 
+async function handleWaitingRoom(driver){
+    let bAppReady 
+    do {
+        await driver.sleep(timerAppReady)
+        appTitle = await driver.getTitle() //"Impfterminservice - Onlinebuchung" => Warteschlange
+        if (appTitle !== 'Impfterminservice - Onlinebuchung') { //116117.app => App ready
+            bAppReady = true 
+        } else {
+            bAppReady = false
+        }
+    } while (!bAppReady)
+    return
+}
+/**
+ * checks if an error element 'Unexpected error' appears after clicking the button 'search appointment'
+ * If it does the script assumes it is a mistiake bei the app of the impfzentrum and tries the code over and over again
+ * @param {selenium Webdriver} driver 
+ */
+async function handleUnexpectedError(driver){
+    // handle the unexpected error
+    let searchPossible
+    try{                           
+        await driver.findElement(By.xpath(innnerTerminSuchenBtnXPath))
+        searchPossible = true
+    } catch(e){
+        console.log('couldnt find button')
+        await driver.sleep(timerWaitForApp)
+    }
+    if (!searchPossible){
+        while (!searchPossible) {
+            console.log('going into whiile')
+            //click on Termin Suchen until the error remove itself
+            const searchAppointmentBtnAfterError = await driver.findElement(By.xpath(searchAppointmentBtnAfterErrorPath))
+            searchAppointmentBtnAfterError.click()
+            await driver.sleep(timerWaitForApp)
+            try{             
+                //search again              
+                await driver.findElement(By.xpath(innnerTerminSuchenBtnXPath))
+                searchPossible = true
+            } catch(e){
+                await driver.sleep(timerWaitForApp)
+            }
+
+        }
+    }
+}
+
+async function validateResult(driver){
+    const BtnTerminSuchenPath = '/html/body/app-root/div/app-page-its-search/div/div/div[2]/div/div/div[5]/div/div[1]/div[2]/div[2]/button'
+    const resultPath = '//*[@id="itsSearchAppointmentsModal"]/div/div/div[2]/div/div/form/div[1]/span'
+    const closePopupBtnPath = '//*[@id="itsSearchAppointmentsModal"]/div/div/div[1]/button'
+    const terminSuchenBtn = await driver.findElement(By.xpath(BtnTerminSuchenPath))
+    const closePopupBtn = await driver.findElement(By.xpath(closePopupBtnPath))
+    let bTerminMöglich
+
+    do{
+        try{
+            resultElement = await driver.findElement(By.xpath(resultPath))
+            resultText = await resultElement.getText()
+        } catch(e){
+            console.log('first try - resultText not found -> there might be an appointment available')
+            playSound()
+        }
+        if(resultText.includes('Derzeit stehen leider keine Termine zur Verfügung')) {
+            console.log('no appointment available - I wait for 11 minutes -- ' + new Date().toLocaleTimeString())
+            bTerminMöglich = false
+            await driver.sleep(timer10MinApp) 
+            await closeAndReopenPopup(driver, terminSuchenBtn, closePopupBtn)
+            // try{
+            //     await driver.findElement(By.xpath(resultPath))
+            //     resultText = await resultElement.getText()
+            // } catch(e){
+            //     console.log('n try - resultText not found -> it seems there is a appointment available')
+            //     playSound()
+            // }
+            
+        } else {
+            bTerminMöglich = true
+        }
+    } while (!bTerminMöglich)
+    console.log('behind do-while')
+    return
+}
+/**
+ * 
+ * @param {selenium Webdriver} driver 
+ * @param {*} terminSuchenBtn clickable DOM element
+ * @param {*} closePopupBtn clickable DOM element
+ */
+async function closeAndReopenPopup(driver, terminSuchenBtn, closePopupBtn){
+    closePopupBtn.click()
+    await driver.sleep(timerClicks)
+    terminSuchenBtn.click()
+    await driver.sleep(timerWaitForApp)
+}
 
 function playSound(){
     const player = require('play-sound')(opts = {})
     player.play(song)
 }
 
-(async function example() {
+(async function main() {
     const driver = await new Builder().forBrowser('chrome').build();
     try {
         await driver.get(`https://001-iz.impfterminservice.de/impftermine/service?plz=${plz}`)
-
-        let bAppReady 
-        let appTitle = await driver.getTitle() //"Impfterminservice - Onlinebuchung" => Warteschlange
-        do {
-            if (appTitle !== 'Impfterminservice - Onlinebuchung') { //116117.app => App ready
-                bAppReady = true 
-                await driver.sleep(timerWaitForApp) //wait to load for everything before ccontinue
-            } else {
-                bAppReady = false
-                await driver.sleep(timerAppReady)
-                appTitle = await driver.getTitle()
-            }
-        } while(!bAppReady)
+        await handleWaitingRoom(driver)
 
 
         //get 'button' Ja - Code exists
@@ -59,34 +142,10 @@ function playSound(){
         //click search Appointment
         const searchApntBtn = await driver.findElement(By.xpath(searchAppointmentBtn));
         searchApntBtn.click()
+
+
         await driver.sleep(timerClicks)
-
-        // handle the unexpected error -> just click it again
-        let searchPossible
-        try{                           
-            await driver.findElement(By.xpath(innnerTerminSuchenBtnXPath))
-            searchPossible = true
-        } catch(e){
-            console.log('couldnt find button')
-            await driver.sleep(timerWaitForApp)
-        }
-        if (!searchPossible){
-            while (!searchPossible) {
-                console.log('going into whiile')
-                //click on Termin Suchen until the error remove itself
-                const searchAppointmentBtnAfterError = await driver.findElement(By.xpath(searchAppointmentBtnAfterErrorPath))
-                searchAppointmentBtnAfterError.click()
-                await driver.sleep(timerWaitForApp)
-                try{             
-                    //search again              
-                    await driver.findElement(By.xpath(innnerTerminSuchenBtnXPath))
-                    searchPossible = true
-                } catch(e){
-                    await driver.sleep(timerWaitForApp)
-                }
-
-            }
-        }
+        await handleUnexpectedError(driver)
 
         //click Termin Suchen
         do {
@@ -116,44 +175,9 @@ function playSound(){
         terminSuchenBtn.click()
         await driver.sleep(timerWaitForApp)
 
-        const resultPath = '//*[@id="itsSearchAppointmentsModal"]/div/div/div[2]/div/div/form/div[1]/span'
-        let resultText
-        let resultElement
-        try{
-            resultElement = await driver.findElement(By.xpath(resultPath))
-            resultText = await resultElement.getText()
-        } catch(e){
-            console.log('first try - resultText not found -> there might be an appointment available')
-            playSound()
-        }
 
-        const closePopupBtnPath = '//*[@id="itsSearchAppointmentsModal"]/div/div/div[1]/button'
-        const closePopupBtn = await driver.findElement(By.xpath(closePopupBtnPath))
 
-        let bTerminMöglich
-        do{
-            if(resultText.includes('Derzeit stehen leider keine Termine zur Verfügung')) {
-                console.log('no appointment available - I wait for 11 minutes -- ' + new Date().toLocaleTimeString())
-                bTerminMöglich = false
-                await driver.sleep(timer10MinApp) 
-                closePopupBtn.click()
-                await driver.sleep(timerClicks)
-                //search again
-                terminSuchenBtn.click()
-                await driver.sleep(timerWaitForApp)
-                try{
-                    await driver.findElement(By.xpath(resultPath))
-                    resultText = await resultElement.getText()
-                } catch(e){
-                    console.log('n try - resultText not found -> it seems there is a appointment available')
-                    playSound()
-                }
-                
-            } else {
-                bTerminMöglich = true
-            }
-        } while (!bTerminMöglich)
-        console.log('behind do-while')
+        await validateResult(driver)
         playSound()
     }
     finally{
