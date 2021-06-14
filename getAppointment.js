@@ -2,8 +2,8 @@ const {Builder, By, Key, until} = require('selenium-webdriver');
 
 //Copyright (c) 2021, Thorsten Müller
 /* ====== personal varibles ========*/
-const plz = 69123
-const code = 'ABBC-1234-DEFG' 
+const plz = 69123 //plz of the impfzentrum
+const code = 'abcd-eefg-2hes'
 const song = 'party.mp3'
 
 /* ====== varibles to adjust if the webpage is to slow ========*/
